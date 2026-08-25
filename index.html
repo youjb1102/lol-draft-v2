@@ -36,7 +36,6 @@
         .team-box.blue h3 { color: #60a5fa; }
         .team-box.red h3 { color: #f87171; }
         
-        /* OP.GG 스타일 입력창 + 화살표 컨테이너 */
         .input-row { display: flex; align-items: center; background: #13172b; border-radius: 8px; padding: 4px 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); position: relative; }
         .pos-label { width: 60px; font-size: 13px; color: #8e95b7; font-weight: 600; text-align: left; }
         .input-wrapper { flex: 1; position: relative; display: flex; align-items: center; }
@@ -44,11 +43,9 @@
         .nickname-input::placeholder { color: #4b527e; }
         .nickname-input:disabled { cursor: not-allowed; opacity: 0.3; }
 
-        /* 우측 검색/화살표 버튼 */
         .search-arrow { position: absolute; right: 5px; background: transparent; border: none; color: #8e95b7; cursor: pointer; font-size: 12px; padding: 5px; transition: color 0.2s; }
         .search-arrow:hover { color: #a855f7; }
 
-        /* OP.GG 연관 검색어 레이어 */
         .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: #1a1f3d; border: 1px solid #6366f1; border-radius: 8px; margin-top: 5px; max-height: 150px; overflow-y: auto; z-index: 100; display: none; text-align: left; box-shadow: 0 8px 16px rgba(0,0,0,0.6); }
         .autocomplete-item { padding: 10px 15px; cursor: pointer; font-size: 13px; color: #e0e6f8; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
         .autocomplete-item:hover { background: #2a315c; color: #fff; }
@@ -96,7 +93,7 @@
             </div>
         </div>
 
-        <div class="section-title">팀 및 닉네임 입력 (검색 후 연관 목록 선택 가능)</div>
+        <div class="section-title">팀 및 닉네임 입력 (검색 테스트 모드)</div>
         <div class="teams-wrapper">
             <!-- 블루팀 -->
             <div class="team-box blue">
@@ -150,9 +147,6 @@
     </div>
 
     <script>
-        // 발급받으신 라이엇 API Key
-        const RIOT_API_KEY = "RGAPI-de8a5419-fe5b-45a5-9423-04189395a8a4"; 
-
         let currentMode = 'rank5';
         let myTeam = 'blue';
 
@@ -198,8 +192,8 @@
             }
         }
 
-        // 특정 개별 입력창에서 연관 검색어(라이엇 계정) 조회
-        async function searchRiotUser(btnElement) {
+        // 임시 테스트용(더미 데이터) 검색 함수
+        function searchRiotUser(btnElement) {
             const wrapper = btnElement.closest('.input-wrapper');
             const input = wrapper.querySelector('.nickname-input');
             const listContainer = wrapper.querySelector('.autocomplete-list');
@@ -210,42 +204,22 @@
                 return;
             }
 
-            // 태그가 없으면 기본값 KR1 부여
-            let gameName = query;
-            let tagLine = "KR1";
-
-            if (query.includes('#')) {
-                const parts = query.split('#');
-                gameName = parts[0];
-                tagLine = parts[1] || "KR1";
-            }
+            let gameName = query.split('#')[0];
+            let tagLine = query.includes('#') ? query.split('#')[1] : "KR1";
 
             listContainer.style.display = 'block';
-            listContainer.innerHTML = `<div class="autocomplete-item">🔍 라이엇 서버 검색 중...</div>`;
-
-            // 라이엇 API 호출 (CORS 헤더 우회 프록시 적용)
-            const targetUrl = `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}?api_key=${RIOT_API_KEY}`;
-            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-
-            try {
-                const response = await fetch(proxyUrl);
-                
-                if (response.status === 200) {
-                    const data = await response.json();
-                    listContainer.innerHTML = `
-                        <div class="autocomplete-item" onclick="selectUser(this, '${data.gameName}#${data.tagLine}')">
-                            <span><b>${data.gameName}</b></span>
-                            <span class="tag-badge">#${data.tagLine}</span>
-                        </div>
-                    `;
-                } else if (response.status === 401 || response.status === 403) {
-                    listContainer.innerHTML = `<div class="autocomplete-item" style="color:#f87171">⚠️ API Key가 만료되었습니다.</div>`;
-                } else {
-                    listContainer.innerHTML = `<div class="autocomplete-item" style="color:#a3a8c3">❌ 계정을 찾을 수 없습니다 (#태그 확인)</div>`;
-                }
-            } catch (err) {
-                listContainer.innerHTML = `<div class="autocomplete-item" style="color:#f87171">❌ API 연결 실패 (키 확인 필요)</div>`;
-            }
+            
+            // UI 테스트용 연관 검색어 목록 생성
+            listContainer.innerHTML = `
+                <div class="autocomplete-item" onclick="selectUser(this, '${gameName}#${tagLine}')">
+                    <span><b>${gameName}</b></span>
+                    <span class="tag-badge">#${tagLine}</span>
+                </div>
+                <div class="autocomplete-item" onclick="selectUser(this, '${gameName}#KR2')">
+                    <span><b>${gameName}</b></span>
+                    <span class="tag-badge">#KR2</span>
+                </div>
+            `;
         }
 
         // 연관검색어 항목 클릭 시 입력창에 자동 완성
@@ -258,7 +232,7 @@
             listContainer.style.display = 'none';
         }
 
-        // 엔터키 이벤트 등록
+        // 엔터키 및 화면 클릭 이벤트
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.nickname-input').forEach(input => {
                 input.addEventListener('keypress', (e) => {
@@ -269,7 +243,6 @@
                 });
             });
 
-            // 화면 클릭 시 검색창 닫기
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.input-wrapper')) {
                     document.querySelectorAll('.autocomplete-list').forEach(l => l.style.display = 'none');
