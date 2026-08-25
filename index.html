@@ -171,10 +171,11 @@
             const blueInputs = document.querySelectorAll('.blue-input');
             const redInputs = document.querySelectorAll('.red-input');
 
-            if (currentMode === 'custom') {
+            // 내전과 격전 모드에서는 상대방 팀 입력창을 열어두고(원하면 입력 가능), 5인 랭크에서만 상대 팀을 완전히 비활성화합니다.
+            if (currentMode === 'custom' || currentMode === 'clash') {
                 blueInputs.forEach(i => i.disabled = false);
                 redInputs.forEach(i => i.disabled = false);
-            } else { // 5인 랭크, 격전
+            } else { // 5인 랭크
                 if (myTeam === 'blue') {
                     blueInputs.forEach(i => i.disabled = false);
                     redInputs.forEach(i => { i.disabled = true; i.value = ''; });
@@ -192,6 +193,7 @@
             const isBlueFull = blueInputs.every(i => i.value.trim() !== '');
             const isRedFull = redInputs.every(i => i.value.trim() !== '');
 
+            // 5인 랭크 및 격전: 상대 팀 입력 여부와 상관없이 '내 팀' 5명만 채워지면 출발!
             if (currentMode === 'rank5' || currentMode === 'clash') {
                 if (myTeam === 'blue' && !isBlueFull) {
                     alert('우리 팀(블루팀) 5명의 닉네임을 모두 입력해 주세요!');
@@ -200,7 +202,7 @@
                     alert('우리 팀(레드팀) 5명의 닉네임을 모두 입력해 주세요!');
                     return;
                 }
-            } else if (currentMode === 'custom') {
+            } else if (currentMode === 'custom') { // 내전: 10명 필수 입력
                 if (!isBlueFull || !isRedFull) {
                     alert('내전 모드는 양 팀 10명의 닉네임을 모두 입력해야 합니다!');
                     return;
