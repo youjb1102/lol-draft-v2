@@ -6,35 +6,133 @@
     <title>LoL 밴픽 시뮬레이터</title>
     <style>
         body { background-color: #091428; color: #f0e6d2; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
-        h1 { color: #c8aa6e; }
+        h1, h2, h3 { color: #c8aa6e; margin-bottom: 5px; }
+        .sub-desc { color: #a09b8c; font-size: 13px; margin-top: 2px; }
+        
+        /* 메인 설정 화면 UI */
+        .lobby-container { max-width: 800px; margin: 0 auto; background: #0a1428; border: 2px solid #c8aa6e; padding: 30px; border-radius: 12px; }
+        .mode-group { margin: 25px 0; }
+        .btn-group { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
+        
+        /* 버튼 스타일 */
+        .mode-btn { background: #1e2328; border: 1px solid #c8aa6e; color: #f0e6d2; padding: 10px 20px; font-size: 15px; cursor: pointer; border-radius: 5px; transition: 0.2s; }
+        .mode-btn:hover, .mode-btn.active { background: #c8aa6e; color: #091428; font-weight: bold; }
+        
+        /* 팀 선택 영역 */
+        .teams-wrapper { display: flex; justify-content: space-around; margin-top: 20px; gap: 20px; }
+        .team-box { width: 45%; background: #111e2e; padding: 15px; border-radius: 8px; border: 1px solid #333; }
+        .team-box.blue { border-color: #0bc6e3; }
+        .team-box.red { border-color: #e84057; }
+        
+        .input-group { margin: 8px 0; text-align: left; }
+        .input-group label { display: block; font-size: 12px; color: #a09b8c; margin-bottom: 3px; }
+        .nickname-input { width: 90%; padding: 8px; background: #091428; border: 1px solid #c8aa6e; color: #fff; border-radius: 4px; }
+        
+        /* 밴픽 시작 버튼 */
+        .start-btn { background: #0bc6e3; color: #091428; border: none; padding: 15px 40px; font-size: 20px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 30px; width: 100%; max-width: 400px; }
+        .start-btn:hover { background: #00e5ff; box-shadow: 0 0 15px #0bc6e3; }
+
+        /* 밴픽 화면 (초기 숨김) */
+        #draft-screen { display: none; }
         .container { display: flex; justify-content: space-around; margin-top: 30px; }
-        .team { width: 40%; background: #0a1428; border: 2px solid #c8aa6e; padding: 20px; border-radius: 10px; }
-        .blue { border-color: #0bc6e3; }
-        .red { border-color: #e84057; }
+        .team-draft { width: 40%; background: #0a1428; border: 2px solid #c8aa6e; padding: 20px; border-radius: 10px; }
         .slot { background: #1e2328; margin: 10px 0; padding: 15px; border-radius: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>LoL Draft Simulator</h1>
-    <p>밴픽 시뮬레이터 작동 중입니다!</p>
 
-    <div class="container">
-        <div class="team blue">
-            <h2>BLUE TEAM</h2>
-            <div class="slot">Top: 픽 대기 중</div>
-            <div class="slot">Jungle: 픽 대기 중</div>
-            <div class="slot">Mid: 픽 대기 중</div>
-            <div class="slot">ADC: 픽 대기 중</div>
-            <div class="slot">Support: 픽 대기 중</div>
+    <!-- 1. 메인 설정 화면 (로비) -->
+    <div id="lobby-screen" class="lobby-container">
+        <h1>LoL Draft Simulator</h1>
+
+        <!-- 경기 종류 -->
+        <div class="mode-group">
+            <h2>경기 종류</h2>
+            <div class="btn-group">
+                <div>
+                    <button class="mode-btn active">5인 랭크</button>
+                    <div class="sub-desc">(상대가 보이지 않아 내 팀 닉네임만 입력 가능)</div>
+                </div>
+                <div>
+                    <button class="mode-btn">내전</button>
+                    <div class="sub-desc">(클릭 후 상세 선택지가 주어집니다)</div>
+                </div>
+                <div>
+                    <button class="mode-btn">격전</button>
+                    <div class="sub-desc">(상대 팀 닉네임도 입력 가능)</div>
+                </div>
+            </div>
         </div>
-        <div class="team red">
-            <h2>RED TEAM</h2>
-            <div class="slot">Top: 픽 대기 중</div>
-            <div class="slot">Jungle: 픽 대기 중</div>
-            <div class="slot">Mid: 픽 대기 중</div>
-            <div class="slot">ADC: 픽 대기 중</div>
-            <div class="slot">Support: 픽 대기 중</div>
+
+        <!-- 피어리스 모드 -->
+        <div class="mode-group">
+            <h2>피어리스 옵션</h2>
+            <div class="btn-group">
+                <button class="mode-btn">일반</button>
+                <button class="mode-btn active">피어리스</button>
+                <button class="mode-btn">하드 피어리스</button>
+            </div>
+        </div>
+
+        <!-- 팀 및 닉네임 입력 (API 조회 연동용 구조) -->
+        <h2>팀 및 닉네임 입력 (Riot API 검색)</h2>
+        <div class="teams-wrapper">
+            <!-- 블루팀 -->
+            <div class="team-box blue">
+                <h3 style="color: #0bc6e3;">블루팀</h3>
+                <div class="input-group"><label>탑 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="예: Hide on bush#KR1"></div>
+                <div class="input-group"><label>정글 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
+                <div class="input-group"><label>미드 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
+                <div class="input-group"><label>원딜 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
+                <div class="input-group"><label>서폿 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
+            </div>
+            
+            <!-- 레드팀 -->
+            <div class="team-box red">
+                <h3 style="color: #e84057;">레드팀</h3>
+                <div class="input-group"><label>탑 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
+                <div class="input-group"><label>정글 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
+                <div class="input-group"><label>미드 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
+                <div class="input-group"><label>원딜 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
+                <div class="input-group"><label>서폿 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
+            </div>
+        </div>
+
+        <!-- 밴픽 시작 버튼 -->
+        <button class="start-btn" onclick="startDraft()">밴픽 시작</button>
+    </div>
+
+    <!-- 2. 밴픽 진행 화면 -->
+    <div id="draft-screen">
+        <h1>LoL Draft Simulator</h1>
+        <p>밴픽 시뮬레이터 진행 중</p>
+
+        <div class="container">
+            <div class="team-draft" style="border-color: #0bc6e3;">
+                <h2 style="color: #0bc6e3;">BLUE TEAM</h2>
+                <div class="slot">Top: 픽 대기 중</div>
+                <div class="slot">Jungle: 픽 대기 중</div>
+                <div class="slot">Mid: 픽 대기 중</div>
+                <div class="slot">ADC: 픽 대기 중</div>
+                <div class="slot">Support: 픽 대기 중</div>
+            </div>
+            <div class="team-draft" style="border-color: #e84057;">
+                <h2 style="color: #e84057;">RED TEAM</h2>
+                <div class="slot">Top: 픽 대기 중</div>
+                <div class="slot">Jungle: 픽 대기 중</div>
+                <div class="slot">Mid: 픽 대기 중</div>
+                <div class="slot">ADC: 픽 대기 중</div>
+                <div class="slot">Support: 픽 대기 중</div>
+            </div>
         </div>
     </div>
+
+    <script>
+        // [밴픽 시작] 버튼 클릭 시 실행되는 함수
+        function startDraft() {
+            document.getElementById('lobby-screen').style.display = 'none'; // 로비 숨기기
+            document.getElementById('draft-screen').style.display = 'block'; // 밴픽창 띄우기
+        }
+    </script>
 </body>
 </html>
