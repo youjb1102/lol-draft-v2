@@ -15,12 +15,10 @@
         .mode-group { margin-bottom: 30px; }
         .btn-group { display: flex; justify-content: center; gap: 12px; }
         
-        /* 모드 선택 버튼 */
         .mode-btn { background: #13172e; border: 1px solid rgba(255,255,255,0.08); color: #8e95b7; padding: 12px 30px; font-size: 15px; font-weight: 600; cursor: pointer; border-radius: 30px; transition: all 0.2s; }
         .mode-btn:hover { background: #1c2242; color: #fff; }
         .mode-btn.active { background: linear-gradient(135deg, #6366f1, #a855f7); color: #fff; border-color: transparent; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
         
-        /* 팀 선택 버튼 */
         .team-btn-blue { background: #0e1a38; border: 1px solid #1d4ed8; color: #60a5fa; padding: 14px 40px; font-size: 16px; font-weight: 700; cursor: pointer; border-radius: 12px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
         .team-btn-blue.active { background: #1d4ed8; color: #fff; box-shadow: 0 0 15px rgba(29, 78, 216, 0.5); }
         
@@ -29,7 +27,6 @@
 
         #fearless-section { display: none; }
 
-        /* 팀 입력 패널 */
         .teams-wrapper { display: flex; justify-content: space-between; margin-top: 20px; gap: 20px; }
         .team-box { width: 48%; padding: 20px; border-radius: 16px; border: 1px solid transparent; background: #0b0e1b; }
         .team-box.blue { border-color: rgba(29, 78, 216, 0.4); box-shadow: inset 0 0 20px rgba(29, 78, 216, 0.05); }
@@ -48,7 +45,6 @@
         .start-btn { background: linear-gradient(135deg, #6366f1, #a855f7); color: #fff; border: none; padding: 16px 50px; font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer; margin-top: 30px; width: 100%; max-width: 350px; box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4); transition: all 0.2s; }
         .start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(168, 85, 247, 0.6); }
 
-        /* 밴픽 화면 */
         #draft-screen { display: none; }
         .nav-header { display: flex; justify-content: space-between; align-items: center; max-width: 1000px; margin: 0 auto 20px auto; }
         .back-btn { background: #13172e; border: 1px solid rgba(255,255,255,0.1); color: #a3a8c3; padding: 8px 18px; cursor: pointer; border-radius: 8px; font-weight: 600; }
@@ -88,11 +84,11 @@
             </div>
         </div>
 
-        <div class="section-title">팀 및 닉네임 입력</div>
+        <div class="section-title">팀 및 닉네임 입력 (Riot ID: 닉네임#TAG)</div>
         <div class="teams-wrapper">
             <div class="team-box blue">
                 <h3>블루팀</h3>
-                <div class="input-row"><span class="pos-label">🛡️ 탑</span><input type="text" class="nickname-input blue-input" placeholder="닉네임#TAG"></div>
+                <div class="input-row"><span class="pos-label">🛡️ 탑</span><input type="text" class="nickname-input blue-input" placeholder="Hide on bush#KR1"></div>
                 <div class="input-row"><span class="pos-label">⚔️ 정글</span><input type="text" class="nickname-input blue-input" placeholder="닉네임#TAG"></div>
                 <div class="input-row"><span class="pos-label">⚡ 미드</span><input type="text" class="nickname-input blue-input" placeholder="닉네임#TAG"></div>
                 <div class="input-row"><span class="pos-label">🏹 원딜</span><input type="text" class="nickname-input blue-input" placeholder="닉네임#TAG"></div>
@@ -109,7 +105,7 @@
             </div>
         </div>
 
-        <button class="start-btn" onclick="startDraft()">⚔️ 밴픽 시작</button>
+        <button class="start-btn" id="start-btn" onclick="startDraft()">⚔️ 밴픽 시작</button>
     </div>
 
     <div id="draft-screen">
@@ -122,24 +118,27 @@
         <div class="container">
             <div class="team-draft" style="border-color: #1d4ed8;">
                 <h2 style="color: #60a5fa;">BLUE TEAM</h2>
-                <div class="slot">Top: 픽 대기 중</div>
-                <div class="slot">Jungle: 픽 대기 중</div>
-                <div class="slot">Mid: 픽 대기 중</div>
-                <div class="slot">ADC: 픽 대기 중</div>
-                <div class="slot">Support: 픽 대기 중</div>
+                <div class="slot" id="blue-top-slot">Top: 픽 대기 중</div>
+                <div class="slot" id="blue-jng-slot">Jungle: 픽 대기 중</div>
+                <div class="slot" id="blue-mid-slot">Mid: 픽 대기 중</div>
+                <div class="slot" id="blue-adc-slot">ADC: 픽 대기 중</div>
+                <div class="slot" id="blue-sup-slot">Support: 픽 대기 중</div>
             </div>
             <div class="team-draft" style="border-color: #b91c1c;">
                 <h2 style="color: #f87171;">RED TEAM</h2>
-                <div class="slot">Top: 픽 대기 중</div>
-                <div class="slot">Jungle: 픽 대기 중</div>
-                <div class="slot">Mid: 픽 대기 중</div>
-                <div class="slot">ADC: 픽 대기 중</div>
-                <div class="slot">Support: 픽 대기 중</div>
+                <div class="slot" id="red-top-slot">Top: 픽 대기 중</div>
+                <div class="slot" id="red-jng-slot">Jungle: 픽 대기 중</div>
+                <div class="slot" id="red-mid-slot">Mid: 픽 대기 중</div>
+                <div class="slot" id="red-adc-slot">ADC: 픽 대기 중</div>
+                <div class="slot" id="red-sup-slot">Support: 픽 대기 중</div>
             </div>
         </div>
     </div>
 
     <script>
+        // 🔑 발급받으신 라이엇 개인 API Key를 아래 따옴표 안에 넣어주세요!
+        const RIOT_API_KEY = "RGAPI-b7ce0535-5f9c-48ef-911f-f2dc22dde300"; 
+
         let currentMode = 'rank5';
         let myTeam = 'blue';
 
@@ -171,11 +170,10 @@
             const blueInputs = document.querySelectorAll('.blue-input');
             const redInputs = document.querySelectorAll('.red-input');
 
-            // 내전과 격전 모드에서는 상대방 팀 입력창을 열어두고(원하면 입력 가능), 5인 랭크에서만 상대 팀을 완전히 비활성화합니다.
             if (currentMode === 'custom' || currentMode === 'clash') {
                 blueInputs.forEach(i => i.disabled = false);
                 redInputs.forEach(i => i.disabled = false);
-            } else { // 5인 랭크
+            } else {
                 if (myTeam === 'blue') {
                     blueInputs.forEach(i => i.disabled = false);
                     redInputs.forEach(i => { i.disabled = true; i.value = ''; });
@@ -186,27 +184,69 @@
             }
         }
 
-        function startDraft() {
+        // 라이엇 API - 실시간 계정 존재 여부 검증 함수
+        async function verifyRiotId(riotId) {
+            if (!riotId.includes('#')) {
+                return { success: false, msg: `'${riotId}'에 태그(#TAG)가 빠졌습니다. (예: Hide on bush#KR1)` };
+            }
+
+            const [gameName, tagLine] = riotId.split('#');
+            const targetUrl = `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}?api_key=${RIOT_API_KEY}`;
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+
+            try {
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
+                
+                if (data.status && data.status.http_status === 200) {
+                    return { success: true };
+                } else {
+                    return { success: false, msg: `'${riotId}' 계정을 찾을 수 없거나 API 키가 만료되었습니다.` };
+                }
+            } catch (err) {
+                return { success: false, msg: "API 서버 연결 중 오류 발생" };
+            }
+        }
+
+        async function startDraft() {
+            const startBtn = document.getElementById('start-btn');
             const blueInputs = Array.from(document.querySelectorAll('.blue-input'));
             const redInputs = Array.from(document.querySelectorAll('.red-input'));
 
             const isBlueFull = blueInputs.every(i => i.value.trim() !== '');
             const isRedFull = redInputs.every(i => i.value.trim() !== '');
 
-            // 5인 랭크 및 격전: 상대 팀 입력 여부와 상관없이 '내 팀' 5명만 채워지면 출발!
+            // 1. 기본 빈칸 검사
             if (currentMode === 'rank5' || currentMode === 'clash') {
-                if (myTeam === 'blue' && !isBlueFull) {
-                    alert('우리 팀(블루팀) 5명의 닉네임을 모두 입력해 주세요!');
-                    return;
-                } else if (myTeam === 'red' && !isRedFull) {
-                    alert('우리 팀(레드팀) 5명의 닉네임을 모두 입력해 주세요!');
-                    return;
+                if (myTeam === 'blue' && !isBlueFull) return alert('우리 팀(블루팀) 5명의 닉네임을 모두 입력해 주세요!');
+                if (myTeam === 'red' && !isRedFull) return alert('우리 팀(레드팀) 5명의 닉네임을 모두 입력해 주세요!');
+            } else if (currentMode === 'custom') {
+                if (!isBlueFull || !isRedFull) return alert('내전 모드는 10명의 닉네임을 모두 입력해야 합니다!');
+            }
+
+            // API 키가 입력되어 있는 경우에만 라이엇 검증 로직 실행
+            if (RIOT_API_KEY && RIOT_API_KEY !== "YOUR_API_KEY_HERE") {
+                startBtn.innerText = "🔍 라이엇 계정 조회 중...";
+                startBtn.disabled = true;
+
+                let targetInputs = [];
+                if (currentMode === 'custom') targetInputs = [...blueInputs, ...redInputs];
+                else targetInputs = (myTeam === 'blue') ? blueInputs : redInputs;
+
+                for (let input of targetInputs) {
+                    const val = input.value.trim();
+                    if (val !== '') {
+                        const res = await verifyRiotId(val);
+                        if (!res.success) {
+                            alert(res.msg);
+                            startBtn.innerText = "⚔️ 밴픽 시작";
+                            startBtn.disabled = false;
+                            return;
+                        }
+                    }
                 }
-            } else if (currentMode === 'custom') { // 내전: 10명 필수 입력
-                if (!isBlueFull || !isRedFull) {
-                    alert('내전 모드는 양 팀 10명의 닉네임을 모두 입력해야 합니다!');
-                    return;
-                }
+                startBtn.innerText = "⚔️ 밴픽 시작";
+                startBtn.disabled = false;
             }
 
             history.pushState({ page: 'draft' }, 'Draft', '#draft');
