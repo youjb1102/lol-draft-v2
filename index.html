@@ -6,19 +6,28 @@
     <title>LoL 밴픽 시뮬레이터</title>
     <style>
         body { background-color: #091428; color: #f0e6d2; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
-        h1, h2, h3 { color: #c8aa6e; margin-bottom: 5px; }
-        .sub-desc { color: #a09b8c; font-size: 13px; margin-top: 2px; }
+        h1, h2, h3 { color: #c8aa6e; margin-bottom: 10px; }
         
-        /* 메인 설정 화면 UI */
         .lobby-container { max-width: 800px; margin: 0 auto; background: #0a1428; border: 2px solid #c8aa6e; padding: 30px; border-radius: 12px; }
         .mode-group { margin: 25px 0; }
         .btn-group { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
         
-        /* 버튼 스타일 */
+        /* 버튼 공통 스타일 */
         .mode-btn { background: #1e2328; border: 1px solid #c8aa6e; color: #f0e6d2; padding: 10px 20px; font-size: 15px; cursor: pointer; border-radius: 5px; transition: 0.2s; }
-        .mode-btn:hover, .mode-btn.active { background: #c8aa6e; color: #091428; font-weight: bold; }
+        .mode-btn:hover { background: #2a3545; }
+        .mode-btn.active { background: #c8aa6e; color: #091428; font-weight: bold; border-color: #f0e6d2; }
         
-        /* 팀 선택 영역 */
+        /* 팀 선택 전용 색상 버튼 */
+        .team-btn-blue { background: #0a2533; border: 1px solid #0bc6e3; color: #0bc6e3; padding: 10px 25px; font-size: 16px; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        .team-btn-blue.active { background: #0bc6e3; color: #091428; }
+        
+        .team-btn-red { background: #331018; border: 1px solid #e84057; color: #e84057; padding: 10px 25px; font-size: 16px; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        .team-btn-red.active { background: #e84057; color: #ffffff; }
+
+        /* 피어리스 옵션 영역 (기본 숨김) */
+        #fearless-section { display: none; }
+
+        /* 팀 입력 레이아웃 */
         .teams-wrapper { display: flex; justify-content: space-around; margin-top: 20px; gap: 20px; }
         .team-box { width: 45%; background: #111e2e; padding: 15px; border-radius: 8px; border: 1px solid #333; }
         .team-box.blue { border-color: #0bc6e3; }
@@ -27,14 +36,18 @@
         .input-group { margin: 8px 0; text-align: left; }
         .input-group label { display: block; font-size: 12px; color: #a09b8c; margin-bottom: 3px; }
         .nickname-input { width: 90%; padding: 8px; background: #091428; border: 1px solid #c8aa6e; color: #fff; border-radius: 4px; }
-        
-        /* 밴픽 시작 버튼 */
+        .nickname-input:disabled { background: #151a21; border-color: #444; color: #666; cursor: not-allowed; }
+
         .start-btn { background: #0bc6e3; color: #091428; border: none; padding: 15px 40px; font-size: 20px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 30px; width: 100%; max-width: 400px; }
         .start-btn:hover { background: #00e5ff; box-shadow: 0 0 15px #0bc6e3; }
 
-        /* 밴픽 화면 (초기 숨김) */
+        /* 밴픽 화면 */
         #draft-screen { display: none; }
-        .container { display: flex; justify-content: space-around; margin-top: 30px; }
+        .nav-header { display: flex; justify-content: space-between; align-items: center; max-width: 1000px; margin: 0 auto 20px auto; }
+        .back-btn { background: #1e2328; border: 1px solid #c8aa6e; color: #c8aa6e; padding: 8px 16px; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        .back-btn:hover { background: #c8aa6e; color: #091428; }
+        
+        .container { display: flex; justify-content: space-around; margin-top: 10px; }
         .team-draft { width: 40%; background: #0a1428; border: 2px solid #c8aa6e; padding: 20px; border-radius: 10px; }
         .slot { background: #1e2328; margin: 10px 0; padding: 15px; border-radius: 5px; font-weight: bold; }
     </style>
@@ -49,63 +62,65 @@
         <div class="mode-group">
             <h2>경기 종류</h2>
             <div class="btn-group">
-                <div>
-                    <button class="mode-btn active">5인 랭크</button>
-                    <div class="sub-desc">(상대가 보이지 않아 내 팀 닉네임만 입력 가능)</div>
-                </div>
-                <div>
-                    <button class="mode-btn">내전</button>
-                    <div class="sub-desc">(클릭 후 상세 선택지가 주어집니다)</div>
-                </div>
-                <div>
-                    <button class="mode-btn">격전</button>
-                    <div class="sub-desc">(상대 팀 닉네임도 입력 가능)</div>
-                </div>
+                <button class="mode-btn active" onclick="selectGameMode('rank5', this)">5인 랭크</button>
+                <button class="mode-btn" onclick="selectGameMode('custom', this)">내전</button>
+                <button class="mode-btn" onclick="selectGameMode('clash', this)">격전</button>
             </div>
         </div>
 
-        <!-- 피어리스 모드 -->
-        <div class="mode-group">
+        <!-- 피어리스 옵션 (내전 전용) -->
+        <div id="fearless-section" class="mode-group">
             <h2>피어리스 옵션</h2>
             <div class="btn-group">
-                <button class="mode-btn">일반</button>
-                <button class="mode-btn active">피어리스</button>
-                <button class="mode-btn">하드 피어리스</button>
+                <button class="mode-btn active" onclick="selectFearless(this)">일반</button>
+                <button class="mode-btn" onclick="selectFearless(this)">피어리스</button>
+                <button class="mode-btn" onclick="selectFearless(this)">하드 피어리스</button>
             </div>
         </div>
 
-        <!-- 팀 및 닉네임 입력 (API 조회 연동용 구조) -->
-        <h2>팀 및 닉네임 입력 (Riot API 검색)</h2>
+        <!-- 팀 선택 -->
+        <div class="mode-group">
+            <h2>팀 선택</h2>
+            <div class="btn-group">
+                <button class="team-btn-blue active" onclick="selectTeam('blue', this)">블루팀</button>
+                <button class="team-btn-red" onclick="selectTeam('red', this)">레드팀</button>
+            </div>
+        </div>
+
+        <!-- 팀 및 닉네임 입력 -->
+        <h2>팀 및 닉네임 입력</h2>
         <div class="teams-wrapper">
             <!-- 블루팀 -->
             <div class="team-box blue">
                 <h3 style="color: #0bc6e3;">블루팀</h3>
-                <div class="input-group"><label>탑 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="예: Hide on bush#KR1"></div>
-                <div class="input-group"><label>정글 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
-                <div class="input-group"><label>미드 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
-                <div class="input-group"><label>원딜 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
-                <div class="input-group"><label>서폿 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
+                <div class="input-group"><label>탑</label><input type="text" class="nickname-input blue-input" placeholder="닉네임#TAG"></div>
+                <div class="input-group"><label>정글</label><input type="text" class="nickname-input blue-input" placeholder="닉네임#TAG"></div>
+                <div class="input-group"><label>미드</label><input type="text" class="nickname-input blue-input" placeholder="닉네임#TAG"></div>
+                <div class="input-group"><label>원딜</label><input type="text" class="nickname-input blue-input" placeholder="닉네임#TAG"></div>
+                <div class="input-group"><label>서폿</label><input type="text" class="nickname-input blue-input" placeholder="닉네임#TAG"></div>
             </div>
             
             <!-- 레드팀 -->
-            <div class="team-box red">
+            <div class="team-box red" id="red-team-box">
                 <h3 style="color: #e84057;">레드팀</h3>
-                <div class="input-group"><label>탑 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
-                <div class="input-group"><label>정글 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
-                <div class="input-group"><label>미드 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
-                <div class="input-group"><label>원딜 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
-                <div class="input-group"><label>서폿 닉네임#TAG</label><input type="text" class="nickname-input" placeholder="닉네임 입력"></div>
+                <div class="input-group"><label>탑</label><input type="text" class="nickname-input red-input" placeholder="닉네임#TAG"></div>
+                <div class="input-group"><label>정글</label><input type="text" class="nickname-input red-input" placeholder="닉네임#TAG"></div>
+                <div class="input-group"><label>미드</label><input type="text" class="nickname-input red-input" placeholder="닉네임#TAG"></div>
+                <div class="input-group"><label>원딜</label><input type="text" class="nickname-input red-input" placeholder="닉네임#TAG"></div>
+                <div class="input-group"><label>서폿</label><input type="text" class="nickname-input red-input" placeholder="닉네임#TAG"></div>
             </div>
         </div>
 
-        <!-- 밴픽 시작 버튼 -->
         <button class="start-btn" onclick="startDraft()">밴픽 시작</button>
     </div>
 
     <!-- 2. 밴픽 진행 화면 -->
     <div id="draft-screen">
-        <h1>LoL Draft Simulator</h1>
-        <p>밴픽 시뮬레이터 진행 중</p>
+        <div class="nav-header">
+            <button class="back-btn" onclick="goBackToLobby()">⚙️ 설정으로 돌아가기</button>
+            <h1 style="margin: 0;">LoL Draft Simulator</h1>
+            <div style="width: 130px;"></div>
+        </div>
 
         <div class="container">
             <div class="team-draft" style="border-color: #0bc6e3;">
@@ -128,11 +143,87 @@
     </div>
 
     <script>
-        // [밴픽 시작] 버튼 클릭 시 실행되는 함수
-        function startDraft() {
-            document.getElementById('lobby-screen').style.display = 'none'; // 로비 숨기기
-            document.getElementById('draft-screen').style.display = 'block'; // 밴픽창 띄우기
+        let currentMode = 'rank5';
+
+        // 경기 종류 선택
+        function selectGameMode(mode, btn) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-group .mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const fearlessSec = document.getElementById('fearless-section');
+            const redInputs = document.querySelectorAll('.red-input');
+
+            if (mode === 'custom') {
+                fearlessSec.style.display = 'block'; // 내전일 때만 피어리스 표시
+            } else {
+                fearlessSec.style.display = 'none';
+            }
+
+            // 5인 랭크일 경우 상대팀 입력란 비활성화
+            if (mode === 'rank5') {
+                redInputs.forEach(i => { i.disabled = true; i.value = ''; });
+            } else {
+                redInputs.forEach(i => i.disabled = false);
+            }
         }
+
+        // 피어리스 옵션 선택
+        function selectFearless(btn) {
+            document.querySelectorAll('#fearless-section .mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // 팀 선택 버튼 (블루 / 레드)
+        function selectTeam(team, btn) {
+            document.querySelectorAll('.team-btn-blue, .team-btn-red').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // 밴픽 시작 검사 및 화면 전환
+        function startDraft() {
+            const blueInputs = Array.from(document.querySelectorAll('.blue-input'));
+            const redInputs = Array.from(document.querySelectorAll('.red-input'));
+
+            const isBlueFull = blueInputs.every(i => i.value.trim() !== '');
+            const isRedFull = redInputs.every(i => i.value.trim() !== '');
+
+            if (currentMode === 'rank5' || currentMode === 'clash') {
+                if (!isBlueFull) {
+                    alert('우리 팀(블루팀) 5명의 닉네임을 모두 입력해 주세요!');
+                    return;
+                }
+            } else if (currentMode === 'custom') {
+                if (!isBlueFull || !isRedFull) {
+                    alert('내전 모드는 양 팀 10명의 닉네임을 모두 입력해야 합니다!');
+                    return;
+                }
+            }
+
+            // 브라우저 뒤로 가기 연동 (History API)
+            history.pushState({ page: 'draft' }, 'Draft', '#draft');
+            showDraftScreen();
+        }
+
+        function showDraftScreen() {
+            document.getElementById('lobby-screen').style.display = 'none';
+            document.getElementById('draft-screen').style.display = 'block';
+        }
+
+        function goBackToLobby() {
+            document.getElementById('draft-screen').style.display = 'none';
+            document.getElementById('lobby-screen').style.display = 'block';
+        }
+
+        // 브라우저 뒤로가기 버튼 눌렀을 때 처리
+        window.onpopstate = function(event) {
+            goBackToLobby();
+        };
+
+        // 초기 실행 시 5인 랭크 모드로 설정
+        window.onload = function() {
+            selectGameMode('rank5', document.querySelector('.mode-btn.active'));
+        };
     </script>
 </body>
 </html>
